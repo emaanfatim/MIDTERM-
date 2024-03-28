@@ -1,0 +1,147 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+//To get user name and ID for booking
+class Booking {
+private:
+    string memberName;
+    int classID;
+public:
+    Booking(string name, int id) : memberName(name), classID(id) {}
+    string getMemberName() const { return memberName; }
+    int getClassID() const { return classID; }
+};
+//
+class FitnessClass {
+private:
+    int classID;
+    string className;
+    int maxSlots;
+    int availableSlots;
+    vector<Booking> bookings;
+public:
+    FitnessClass(int id, string name, int max) : classID(id), className(name), maxSlots(max), availableSlots(max) {}
+
+    int getClassID() const { return classID; }
+    string getClassName() const { return className; }
+    int getMaxSlots() const { return maxSlots; }
+    int getAvailableSlots() const { return availableSlots; }
+
+    void addBooking(const Booking& booking) {
+        if (availableSlots > 0) {
+            bookings.push_back(booking);
+            availableSlots--;
+            cout << "Booking successful for " << booking.getMemberName() << " in class " << className << endl;
+        }
+        else {
+            cout << "Sorry, no available slots for class " << className << endl;
+        }
+    }
+
+    void displayBookings() const {
+        cout << "Bookings for class " << className << endl;
+        for (const auto& booking : bookings) {
+            cout << "------>" << booking.getMemberName()<<"  done!!";
+            cout << "Thankyou for choosing us" << endl;
+        }
+    }
+};
+
+class FitnessBookingSystem {
+private:
+    vector<FitnessClass> classes;
+public:
+    void addClass(const FitnessClass& fitnessClass) {
+        classes.push_back(fitnessClass);
+    }
+    //To display the available slots
+    void displayClasses() const {
+        cout << "Available fitness classes:" << endl;
+        for (const auto& fitnessClass : classes) {
+            cout << "Class ID: " << fitnessClass.getClassID() << " - " << fitnessClass.getClassName() << " (Available Slots: " << fitnessClass.getAvailableSlots() << "/" << fitnessClass.getMaxSlots() << ")" << endl;
+        }
+    }
+
+    FitnessClass* findClassByID(int id) {
+        for (auto& fitnessClass : classes) {
+            if (fitnessClass.getClassID() == id) {
+                return &fitnessClass;
+            }
+        }
+        return nullptr;
+    }
+
+    const vector<FitnessClass>& getClasses() const {
+        return classes;
+    }
+};
+
+
+int main() {
+    cout << "-------------------------------------" << endl;
+    cout << "FITNESS BOOKING  SYSTEM" << endl;
+    cout << "-------------------------------------" << endl;
+    int choice;
+    FitnessBookingSystem bookingSystem;
+
+    FitnessClass yoga(1, "Yoga", 10);
+    FitnessClass pilates(2, "Pilates", 8);
+    FitnessClass gym(3, "GYM", 15);
+
+    bookingSystem.addClass(yoga);
+    bookingSystem.addClass(pilates);
+    bookingSystem.addClass(gym);
+
+    do {
+        cout << "\nMenu:" << endl;
+        cout << "1. View available fitness classes" << endl;
+        cout << "2. Book a slot" << endl;
+        cout << "3. Display booking confirmations" << endl;
+        cout << "4. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1: {
+            bookingSystem.displayClasses();
+            break;
+        }
+        case 2: {
+            int classID;
+            cout << "Enter the class ID you want to book: ";
+            cin >> classID;
+            FitnessClass* selectedClass = bookingSystem.findClassByID(classID);
+            if (selectedClass) {
+                string memberName;
+                cout << "Enter your name: ";
+                cin >> memberName;
+                Booking booking(memberName, classID);
+                selectedClass->addBooking(booking);
+            }
+            else {
+                cout << "Invalid class ID!" << endl;
+            }
+            break;
+        }
+        case 3: {
+            cout << "Displaying booking confirmations:" << endl;
+            for (const auto& fitnessClass : bookingSystem.getClasses()) {
+                fitnessClass.displayBookings();
+            }
+            break;
+        }
+        case 4: {
+            cout << "Exiting program." << endl;
+            break;
+        }
+        default: {
+            cout << "Invalid choice. Please try again." << endl;
+            break;
+        }
+        }
+    } while (choice != 4);
+
+    return 0;
+}
